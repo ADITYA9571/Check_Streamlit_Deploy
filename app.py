@@ -16,6 +16,10 @@ if uploaded_file is not None:
     st.subheader("Dataset Preview")
     st.dataframe(dataset.head())
 
+    # Remove Id column if present
+    if "Id" in dataset.columns:
+        dataset = dataset.drop("Id", axis=1)
+
     X = dataset.iloc[:, :-1].values
     y = dataset.iloc[:, -1].values
 
@@ -26,70 +30,166 @@ if uploaded_file is not None:
 
     if st.button("Run Models"):
 
+        # =========================
+        # REGRESSION
+        # =========================
+# =========================
+# REGRESSION
+# =========================
         if model_type == "Regression":
 
             results = {}
+
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
+                X, y,
+                test_size=0.2,
+                random_state=0
             )
 
-            # Linear Regression
+            # 1️⃣ Multiple Linear Regression
             from sklearn.linear_model import LinearRegression
             model = LinearRegression()
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            results["Linear Regression"] = r2_score(y_test, y_pred)
+            results["Multiple Linear Regression"] = r2_score(
+                y_test, model.predict(X_test)
+            )
 
-            # Decision Tree
+            # 2️⃣ Polynomial Regression
+            from sklearn.preprocessing import PolynomialFeatures
+            poly = PolynomialFeatures(degree=4)
+            X_poly_train = poly.fit_transform(X_train)
+            X_poly_test = poly.transform(X_test)
+
+            model = LinearRegression()
+            model.fit(X_poly_train, y_train)
+            results["Polynomial Regression"] = r2_score(
+                y_test, model.predict(X_poly_test)
+            )
+
+            # 3️⃣ Support Vector Regression
+            from sklearn.svm import SVR
+
+            sc_X = StandardScaler()
+            sc_y = StandardScaler()
+
+            X_train_scaled = sc_X.fit_transform(X_train)
+            y_train_scaled = sc_y.fit_transform(y_train.reshape(-1,1))
+
+            model = SVR(kernel='rbf')
+            model.fit(X_train_scaled, y_train_scaled.ravel())
+
+            y_pred_scaled = model.predict(sc_X.transform(X_test))
+            y_pred = sc_y.inverse_transform(y_pred_scaled.reshape(-1,1))
+
+            results["Support Vector Regression"] = r2_score(
+                y_test, y_pred
+            )
+
+            # 4️⃣ Decision Tree Regression
             from sklearn.tree import DecisionTreeRegressor
-            model = DecisionTreeRegressor(random_state=42)
+            model = DecisionTreeRegressor(random_state=0)
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            results["Decision Tree"] = r2_score(y_test, y_pred)
+            results["Decision Tree Regression"] = r2_score(
+                y_test, model.predict(X_test)
+            )
 
-            # Random Forest
+            # 5️⃣ Random Forest Regression
             from sklearn.ensemble import RandomForestRegressor
-            model = RandomForestRegressor(n_estimators=100, random_state=42)
+            model = RandomForestRegressor(
+                n_estimators=10,
+                random_state=0
+            )
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            results["Random Forest"] = r2_score(y_test, y_pred)
+            results["Random Forest Regression"] = r2_score(
+                y_test, model.predict(X_test)
+            )
 
             st.write("### Regression Results")
             st.write(results)
-            st.success(f"Best Model: {max(results, key=results.get)}")
+            st.success(f"Preferred Regression Model:- {max(results, key=results.get)}")
 
+            
+        # =========================
+        # CLASSIFICATION
+        # =========================
         else:
 
             results = {}
+
+            # 🔥 SPLIT ONLY ONCE (VERY IMPORTANT)
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.25, random_state=42
+                X, y,
+                test_size=0.25,
+                random_state=0
             )
 
-            scaler = StandardScaler()
-            X_train = scaler.fit_transform(X_train)
-            X_test = scaler.transform(X_test)
+            # 🔥 SCALE ONLY ONCE
+            sc = StandardScaler()
+            X_train = sc.fit_transform(X_train)
+            X_test = sc.transform(X_test)
 
             # Logistic Regression
             from sklearn.linear_model import LogisticRegression
-            model = LogisticRegression(max_iter=1000)
+            model = LogisticRegression(random_state=0)
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            results["Logistic Regression"] = accuracy_score(y_test, y_pred)
+            results["Logistic Regression"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
 
-            # SVM
-            from sklearn.svm import SVC
-            model = SVC(kernel="rbf")
+            # KNN
+            from sklearn.neighbors import KNeighborsClassifier
+            model = KNeighborsClassifier(n_neighbors=5)
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            results["SVM"] = accuracy_score(y_test, y_pred)
+            results["KNN"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
+
+            # Linear SVM
+            from sklearn.svm import SVC
+            model = SVC(kernel="linear", random_state=0)
+            model.fit(X_train, y_train)
+            results["SVM"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
+
+            # Kernel SVM
+            model = SVC(kernel="rbf", random_state=0)
+            model.fit(X_train, y_train)
+            results["Kernal SVM"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
+
+            # Naive Bayes
+            from sklearn.naive_bayes import GaussianNB
+            model = GaussianNB()
+            model.fit(X_train, y_train)
+            results["Naive Bayes"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
+
+            # Decision Tree
+            from sklearn.tree import DecisionTreeClassifier
+            model = DecisionTreeClassifier(
+                criterion="entropy",
+                random_state=0
+            )
+            model.fit(X_train, y_train)
+            results["Decision Tree Classification"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
 
             # Random Forest
             from sklearn.ensemble import RandomForestClassifier
-            model = RandomForestClassifier(n_estimators=100, random_state=42)
+            model = RandomForestClassifier(
+                n_estimators=10,
+                criterion="entropy",
+                random_state=0
+            )
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            results["Random Forest"] = accuracy_score(y_test, y_pred)
+            results["Random Tree Classification"] = accuracy_score(
+                y_test, model.predict(X_test)
+            )
 
             st.write("### Classification Results")
             st.write(results)
-            st.success(f"Best Model: {max(results, key=results.get)}")
+            st.success(f"Preferred Classification Model:- {max(results, key=results.get)}")
