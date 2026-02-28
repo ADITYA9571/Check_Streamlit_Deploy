@@ -29,13 +29,10 @@ if uploaded_file is not None:
     )
 
     if st.button("Run Models"):
-
+        
         # =========================
         # REGRESSION
         # =========================
-# =========================
-# REGRESSION
-# =========================
         if model_type == "Regression":
 
             results = {}
@@ -46,7 +43,7 @@ if uploaded_file is not None:
                 random_state=0
             )
 
-            # 1️⃣ Multiple Linear Regression
+            # Multiple Linear Regression
             from sklearn.linear_model import LinearRegression
             model = LinearRegression()
             model.fit(X_train, y_train)
@@ -54,7 +51,7 @@ if uploaded_file is not None:
                 y_test, model.predict(X_test)
             )
 
-            # 2️⃣ Polynomial Regression
+            # Polynomial Regression
             from sklearn.preprocessing import PolynomialFeatures
             poly = PolynomialFeatures(degree=4)
             X_poly_train = poly.fit_transform(X_train)
@@ -66,7 +63,7 @@ if uploaded_file is not None:
                 y_test, model.predict(X_poly_test)
             )
 
-            # 3️⃣ Support Vector Regression
+            # Support Vector Regression
             from sklearn.svm import SVR
 
             sc_X = StandardScaler()
@@ -85,7 +82,7 @@ if uploaded_file is not None:
                 y_test, y_pred
             )
 
-            # 4️⃣ Decision Tree Regression
+            # Decision Tree Regression
             from sklearn.tree import DecisionTreeRegressor
             model = DecisionTreeRegressor(random_state=0)
             model.fit(X_train, y_train)
@@ -93,7 +90,7 @@ if uploaded_file is not None:
                 y_test, model.predict(X_test)
             )
 
-            # 5️⃣ Random Forest Regression
+            # Random Forest Regression
             from sklearn.ensemble import RandomForestRegressor
             model = RandomForestRegressor(
                 n_estimators=10,
@@ -116,14 +113,14 @@ if uploaded_file is not None:
 
             results = {}
 
-            # 🔥 SPLIT ONLY ONCE (VERY IMPORTANT)
+            # SPLIT ONLY ONCE (VERY IMPORTANT)
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y,
                 test_size=0.25,
                 random_state=0
             )
 
-            # 🔥 SCALE ONLY ONCE
+            # SCALE ONLY ONCE
             sc = StandardScaler()
             X_train = sc.fit_transform(X_train)
             X_test = sc.transform(X_test)
