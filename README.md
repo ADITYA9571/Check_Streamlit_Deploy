@@ -8,7 +8,9 @@ This app allows users to upload structured CSV datasets and compare multiple alg
 ## 🚀 Live Demo
 
 ▶️ Video Clip: https://drive.google.com/file/d/1_BfUm5jhWVBh6RlMdfZ5IkFa49EKz4ht/view?usp=sharing
+
 🌐 Live App: https://ml-model-comparison-basic.streamlit.app/
+
 🔗 GitHub Repository: https://github.com/ADITYA9571/Check_Streamlit_Deploy
 
 ---
